@@ -1,7 +1,7 @@
 {
 	"name": "atmega328p-editor",
 	"displayName": "ATmega328p Assembly Language Editor for Arduino Uno",
-	"description": "「Arduinoによるアセンブラ入門」でアセンブリコードを書きやすくする為の拡張機能です。",
+	"description": "アセンブリコードを書きやすくする為の拡張機能です。",
 	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.71.0"
