@@ -1,0 +1,167 @@
+{
+    "MOV": {
+        "prefix": "mov",
+        "body": [
+            "mov\t${1:Rd},\t${0:Rr}"
+        ],
+        "description": "Rd←Rr"
+    },
+    "MOVW": {
+        "prefix": "movw",
+        "body": [
+            "movw\t${1:Rd},\t${0:Rr}$0"
+        ],
+        "description": "Rd+1:Rd←Rr+1:Rr"
+    },
+    "LDI": {
+        "prefix": "ldi",
+        "body": [
+            "ldi\t${1:Rd},\t${0:K}"
+        ],
+        "description": "Rd←K"
+    },
+    "LD": {
+        "prefix": "ld",
+        "body": [
+            "ld\t${1:Rd}\t${0:Ri}"
+        ],
+        "description": "Rd←(Ri)"
+    },
+    "LDS": {
+        "prefix": "lds",
+        "body": [
+            "lds\t${1:Rd},\t${0:k}"
+        ],
+        "description": "Rd←(k)"
+    },
+    "ST": {
+        "prefix": "st",
+        "body": [
+            "st\t${1:Rd},\t${0:Rr}"
+        ],
+        "description": "Rd←Ri"
+    },
+    "STS": {
+        "prefix": "sts",
+        "body": [
+            "sts\t${1:k},\t${0:Rr}"
+        ],
+        "description": "(k)←Rr"
+    },
+    "IN": {
+        "prefix": "in",
+        "body": [
+            "in\t${1:Rd},\t${0:P}"
+        ],
+        "description": "Rd←P"
+    },
+    "OUT": {
+        "prefix": "out",
+        "body": [
+            "out\t${1:P},\t${0:Rr}"
+        ],
+        "description": "P←Rr"
+    },
+    "PUSH": {
+        "prefix": "push",
+        "body": [
+            "push\t${0:Rr}"
+        ],
+        "description": "STACK←Rr"
+    },
+    "POP": {
+        "prefix": "pop",
+        "body": [
+            "pop\t${0:Rd}"
+        ],
+        "description": "Rd←STACK"
+    },
+    "ADD": {
+        "prefix": "add",
+        "body": "add\t${1:Rd},\t${0:Rr}"
+    },
+    "ADC": {
+        "prefix": "adc",
+        "body": "adc\t${1:Rd},\t${0:Rr}"
+    },
+    "SUB": {
+        "prefix": "sub",
+        "body": "sub\t${1:Rd},\t${0:Rr}"
+    },
+    "SBC": {
+        "prefix": "sbc",
+        "body": "sbc\t${1:Rd},\t${0:Rr}"
+    },
+    "AND": {
+        "prefix": "and",
+        "body": "and\t${1:Rd},\t${0:Rr}"
+    },
+    "OR": {
+        "prefix": "or",
+        "body": "or\t${1:Rd},\t${0:Rr}"
+    },
+    "EOR": {
+        "prefix": "eor",
+        "body": "eor\t${1:Rd},\t${0:Rr}"
+    },
+    "COM": {
+        "prefix": "com",
+        "body": "com\t${0:Rd}"
+    },
+    "INC": {
+        "prefix": "inc",
+        "body": "inc\t${0:Rd}"
+    },
+    "DEC": {
+        "prefix": "dec",
+        "body": "dec\t${0:Rd}"
+    },
+    "CP": {
+        "prefix": "cp",
+        "body": "cp\t${1:Rd},\t${0:Rr}"
+    },
+    "CPC": {
+        "prefix": "cpc",
+        "body": "cpc\t${1:Rd},\t${0:Rr}"
+    },
+    "LSL": {
+        "prefix": "lsl",
+        "body": "lsl\t${0:Rd}"
+    },
+    "LSR": {
+        "prefix": "lsr",
+        "body": "lsr\t${0:Rd}"
+    },
+    "ASR": {
+        "prefix": "asr",
+        "body": "asr\t${0:Rd}"
+    },
+    "ROL": {
+        "prefix": "rol",
+        "body": "rol\t${0:Rd}"
+    },
+    "ROR": {
+        "prefix": "ror",
+        "body": "ror\t${0:Rd}"
+    },
+    "RJMP": {
+        "prefix": "rjmp",
+        "body": "rjmp\t${0:k}"
+    },
+    "RCALL": {
+        "prefix": "rcall",
+        "body": "rcall\t${0:k}"
+    },
+    "RET": {
+        "prefix": "ret",
+        "body": "ret"
+    },
+    "BRBS": {
+        "prefix": "brbs",
+        "body": "brbs\t${1:s},\t${0:k}"
+    },
+    "BRBC": {
+        "prefix": "brbc",
+        "body": "brbc\t${1:s},\t${0:k}"
+    }
+}

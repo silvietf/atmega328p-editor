@@ -1,0 +1,85 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "assembly",
+	"patterns": [
+		{
+			"include": "#comment"
+		},
+		{
+			"include": "#constant"
+		},
+		{
+			"include": "#entity"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#variable"
+		},
+		{
+			"include": "#storage"
+		}
+	],
+	"repository": {
+		"comment":{
+			"patterns": [{
+				"name":"comment.line",
+				"match": ";(\\w|\\W)*"
+			}]
+		},
+		"constant":{
+			"patterns": [{
+				"name":"constant.numeric",
+				"match":"\\d|[0x]\\h*"
+			}]
+		},
+		"entity":{
+			"patterns": [{
+				"name":"entity.name.function",
+				"match": "\\w*:"
+			}
+		]
+		},
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control",
+				"match": "\\b(mov|movw|ld|st|in|out|add|adc|sub|sbc|and|or|eor|cp|cpc|lds|ldi|sts|brbc|brbs|push|pop|com|inc|dec|lsl|lsr|asr|rol|ror|rjmp|rcall|ret)\\b"
+			}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.asm",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.asm",
+					"match": "\\\\."
+				}
+			]
+		},
+		"variable":{
+			"patterns": [{
+				"name":"variable.parameter.register",
+				"match": "r\\d{1,2}"
+			},
+			{
+				"name":"variable.parameter.register.alphabet",
+				"match": "[x]|[y]|[z]"
+			},
+			{
+				"name":"variable.parameter.variable",
+				"match": "\\(\\w*\\)"
+			}]
+		},
+		"storage":{
+			"patterns": [{
+			}]
+		}
+	},
+	"scopeName": "source.asm"
+}
