@@ -16,6 +16,7 @@
     3. [ファイル名].inoで、`asm();`内にoutput.txtの内容をコピーする。
 
 ## 必要環境
+- [Node.js]
 * [Arduino IDE](https://www.arduino.cc/en/software)
 * [Arduino 拡張機能](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.vscode-arduino)
 * [C/C++拡張機能](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)

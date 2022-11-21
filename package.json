@@ -10,13 +10,35 @@
 		"Programming Languages",
 		"Snippets",
 		"Education",
-		"Visualization"
+		"Visualization",
+		"Debuggers"
 	],
 	"activationEvents": [
 		"*"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"breakpoints": [
+			{
+				"language": "ino assembly"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "asmdebag",
+				"label": "asmdebug",
+				"program": "./out/extension.js",
+				"runtime": "node",
+				"initialConfigurations": [
+					{
+						"type": "asmdebug",
+						"request": "launch",
+						"name": "asmdebug",
+						"program": "${file}"
+					}
+				]
+			}
+		],
 		"languages": [
 			{
 				"id": "ino assembly",
@@ -35,6 +57,11 @@
 				"command": "convert-to-txt",
 				"title": ".asmのコードを.ino用に出力。",
 				"icon": "$(file-text)"
+			},
+			{
+				"command": "launch-debugger",
+				"title": "デバッグ開始",
+				"icon": "$(debug-alt)"
 			}
 		],
 		"grammars": [
@@ -49,6 +76,11 @@
 				{
 					"when": "editorLangId == ino assembly",
 					"command": "convert-to-txt",
+					"group": "navigation"
+				},
+				{
+					"when": "editorLangId == ino assembly",
+					"command": "launch-debugger",
 					"group": "navigation"
 				}
 			]
