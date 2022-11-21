@@ -10,9 +10,14 @@ function oprDecimal(opr: RegExpMatchArray | null) {
 	let newOpr = new Array(2);
 	opr.forEach((e, i, a) => {
 		if (e.match(/r/gm) !== null) {
+			//point レジスタ名にmatch
 			newOpr[i] = parseInt(String(e.match(/[0-9]+/gm)), 10);
 		} else if (e.match(/0x/gm) !== null) {
+			//point 16進数にmatch
 			newOpr[i] = parseInt(String(e.match(/[0-9a-fA-F]+(?!x)/gm)), 16);
+		} else {
+			//point 10進数にmatch
+			newOpr[i] = parseInt(String(e.match(/-?[0-9]+/gm)), 10);
 		}
 	});
 	return newOpr;
@@ -45,7 +50,7 @@ function procedure(opc: string | object, opr1: number, opr2: number, r: number[]
 			pc++;
 			break;
 		case "lds":
-			r[opr1] = r[opr2];
+			r[opr1] = opr2;
 			pc++;
 			break;
 		case "st":
@@ -179,13 +184,12 @@ function procedure(opc: string | object, opr1: number, opr2: number, r: number[]
 				pc += opr2 + 1;
 			}
 			break;
+		case "nop":
+			break;
 		default:
 			break;
 	}
-	console.log(opc);
-	console.log(opr1);
-	console.log(opr2);
-
+	return [sp, pc];
 }
 
 
@@ -229,11 +233,11 @@ export function activate(context: vscode.ExtensionContext) {
 		reader.on('line', line => {
 			//step 正規表現で命令などを切り出し。
 			opcode = line.match(/^\w*/);
-			operand = line.match(/(r\d+|0x[0-9a-fA-F]{2}|\((\w*|-*\d*)\))/gm);
+			operand = line.match(/(r\d+|0x[0-9a-fA-F]{2}|(-?\d+))/gm);
 			//step 10進数変換
 			oprNum = oprDecimal(operand);
 			//step 命令機能実装
-			procedure(opcode[0], oprNum[0], oprNum[1], r, flag, pc, stack, sp);
+			[sp, pc] = procedure(opcode[0], oprNum[0], oprNum[1], r, flag, pc, stack, sp);
 			//step csvファイルに書き込み
 		});
 	});

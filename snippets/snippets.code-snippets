@@ -163,5 +163,9 @@
     "BRBC": {
         "prefix": "brbc",
         "body": "brbc\t${1:s},\t${0:k}"
+    },
+    "NOP":{
+        "prefix": "nop",
+        "body": "nop"
     }
 }

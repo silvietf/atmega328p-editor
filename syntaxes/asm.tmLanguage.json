@@ -47,7 +47,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control",
-				"match": "\\b(mov|movw|ld|st|in|out|add|adc|sub|sbc|and|or|eor|cp|cpc|lds|ldi|sts|brbc|brbs|push|pop|com|inc|dec|lsl|lsr|asr|rol|ror|rjmp|rcall|ret)\\b"
+				"match": "\\b(nop|mov|movw|ld|st|in|out|add|adc|sub|sbc|and|or|eor|cp|cpc|lds|ldi|sts|brbc|brbs|push|pop|com|inc|dec|lsl|lsr|asr|rol|ror|rjmp|rcall|ret)\\b"
 			}
 			]
 		},
