@@ -88,10 +88,27 @@ function procedure(opc: string | object, opr1: number, opr2: number, memory: num
 		case "add":
 			memory[opr1] += memory[opr2];
 			pc++;
+
+			// if (memory[opr2] === 0) {
+			// 	//Zフラグ
+			// 	flag[1] = 1;
+			// }
+			// if (pickUpBit(memory[opr1], 8) === 1) {
+			// 	//Nフラグ
+			// 	flag[2] = 1;
+			// }
+			// if (pickUpBit(memory[opr1], 9) === 1) {
+			// 	//Vフラグ
+			// 	flag[3] = 1;
+			// 	memory[opr1] -= 1 * (2 ** 8);
+			// }
+			// flag[4] = flag[2] ^= flag[3];
 			break;
 		case "adc":
 			memory[opr1] += memory[opr2] + flag[0];
 			pc++;
+			// flag[4] = flag[2] ^= flag[3];
+
 			break;
 		case "sub":
 			memory[opr1] -= memory[opr2];
@@ -131,11 +148,15 @@ function procedure(opc: string | object, opr1: number, opr2: number, memory: num
 			pc++;
 			break;
 		case "cp":
-			//?
+			// if (Math.abs(memory[opr1]) < Math.abs(memory[opr2])) {
+			// 	flag[0] = 1;
+			// } else {
+			// 	flag[0] = 0;
+			// }
+
 			pc++;
 			break;
 		case "cpc":
-			//?
 			pc++;
 			break;
 		case "lsl":
