@@ -4,12 +4,17 @@ import * as fs from "fs";	//node.jsのFile System APIのimport https://nodejs.or
 import * as ps from 'path';	//node.jsのPath APIのimport https://nodejs.org/api/path.html
 import * as rl from 'readline';	//node.jsのReadline APIのimport https://nodejs.org/api/path.html
 
+//function 下n桁目を取り出す関数
+function pickUpBit(data: number, n: number) {
+	return data / (2 ** (n - 1)) % 2;
+}
+
 //function オペランドの数字変換。
 function oprDecimal(opr: RegExpMatchArray | null) {
 	//step 末尾の数字２桁を抽出して、16進数変換。
 	let newOpr = new Array(2);
 	opr.forEach((e, i, a) => {
-		if (e.match(/r/gm) !== null) {
+		if (e.match(/memory/gm) !== null) {
 			//point レジスタ名にmatch
 			newOpr[i] = parseInt(String(e.match(/[0-9]+/gm)), 10);
 		} else if (e.match(/0x/gm) !== null) {
@@ -24,7 +29,7 @@ function oprDecimal(opr: RegExpMatchArray | null) {
 }
 
 //function 命令機能
-function procedure(opc: string | object, opr1: number, opr2: number, r: number[], flag: number[], pc: number, stack: number[], sp: number) {
+function procedure(opc: string | object, opr1: number, opr2: number, memory: number[], flag: number[], pc: number, sp: number) {
 	//step opcodeがnullの時はreturn
 	if (opc === null) {
 		return;
@@ -33,96 +38,96 @@ function procedure(opc: string | object, opr1: number, opr2: number, r: number[]
 	//step 命令機能実装
 	switch (opc) {
 		case "mov":
-			r[opr1] = r[opr2];
+			memory[opr1] = memory[opr2];
 			pc++;
 			break;
 		case "movw":
-			r[opr1 + 1] = r[opr2 + 1];
-			r[opr1] = r[opr1];
+			memory[opr1 + 1] = memory[opr2 + 1];
+			memory[opr1] = memory[opr1];
 			pc++;
 			break;
 		case "ldi":
-			r[opr1] = opr2;
+			memory[opr1] = opr2;
 			pc++;
 			break;
 		case "ld":
-			r[opr1] = r[r[opr2]];
+			memory[opr1] = memory[memory[opr2]];
 			pc++;
 			break;
 		case "lds":
-			r[opr1] = opr2;
+			memory[opr1] = opr2;
 			pc++;
 			break;
 		case "st":
-			r[r[opr1]] = r[opr2];
+			memory[memory[opr1]] = memory[opr2];
 			pc++;
 			break;
 		case "sts":
-			r[opr1] = r[opr2];
-			pc++;
+			memory[opr1] = memory[opr2];
+			pc += 2;
 			break;
 		case "in":
-			r[opr1] = opr2;
+			memory[opr1] = memory[0x20 + opr2];
 			pc++;
 			break;
 		case "out":
-			//?
+			memory[0x20 + opr1] = memory[opr2];
 			pc++;
 			break;
 		case "push":
-			stack[sp] = r[opr1];
-			sp++;
-			pc++;
-			break;
-		case "pop":
-			r[opr1] = stack[sp];
-			stack[sp] = 0;	//*空にする。
+			memory[0x3ff - sp] = memory[opr1];
 			sp--;
 			pc++;
 			break;
+		case "pop":
+			memory[opr1] = memory[0x3ff - sp];
+			memory[0x3ff - sp] = 0;	//*空にする。
+			sp++;
+			pc++;
+			break;
 		case "add":
-			r[opr1] += r[opr2];
+			memory[opr1] += memory[opr2];
 			pc++;
 			break;
 		case "adc":
-			r[opr1] += r[opr2] + flag[0];
+			memory[opr1] += memory[opr2] + flag[0];
 			pc++;
 			break;
 		case "sub":
-			r[opr1] -= r[opr2];
+			memory[opr1] -= memory[opr2];
 			pc++;
 			break;
 		case "sbc":
-			r[opr1] -= r[opr2] - flag[0];
+			memory[opr1] -= memory[opr2] - flag[0];
 			pc++;
 			break;
 		case "and":
-			r[opr1] = r[opr1] &= r[opr2];
+			memory[opr1] = memory[opr1] &= memory[opr2];
 			flag[3] = 0;
 			pc++;
 			break;
 		case "or":
-			r[opr1] = r[opr1] |= r[opr2];
+			memory[opr1] = memory[opr1] |= memory[opr2];
 			flag[3] = 0;
 			pc++;
 			break;
 		case "eor":
-			r[opr1] = r[opr1] ^= r[opr2];
+			memory[opr1] = memory[opr1] ^= memory[opr2];
 			flag[3] = 0;
 			pc++;
 			break;
 		case "com":
-			r[opr1] = ~r[opr1];
+			memory[opr1] = ~memory[opr1];
 			flag[3] = 0;
 			flag[0] = 1;
 			pc++;
 			break;
 		case "inc":
-			r[opr1]++;
+			memory[opr1]++;
 			pc++;
 			break;
 		case "dec":
-			r[opr1]--;
+			memory[opr1]--;
 			pc++;
 			break;
 		case "cp":
@@ -134,45 +139,46 @@ function procedure(opc: string | object, opr1: number, opr2: number, r: number[]
 			pc++;
 			break;
 		case "lsl":
-			//?
-			// flag[0]=r[opr1]%2;
-			r[opr1] = r[opr1] << 1;
+			// flag[0]=memory[opr1]%2;
+			memory[opr1] = memory[opr1] << 1;
 			pc++;
 			break;
 		case "lsr":
-			//?
-			flag[0] = r[opr1] % 2;
-			r[opr1] = r[opr1] >> 1;
+			// flag[0] = memory[opr1] % 2;
+			memory[opr1] = memory[opr1] >> 1;
 			pc++;
 			break;
 		case "asr":
-			//?
-			flag[0] = r[opr1] % 2;
-			r[opr1] = r[opr1] >> 1;
+			// flag[0] = memory[opr1] % 2;
+			memory[opr1] = memory[opr1] >> 1;
+			memory[opr1] += pickUpBit(memory[opr1], 7) * (2 ** 7);
 			pc++;
 			break;
 		case "rol":
 			//?
-			r[opr1] = r[opr1] << 1;
+			memory[opr1] = memory[opr1] << 1;
+			memory[opr1] += flag[0];
 			pc++;
 			break;
 		case "ror":
 			//?
-			r[opr1] = r[opr1] >> 1;
+			memory[opr1] = memory[opr1] >> 1;
+			memory[opr1] += flag[0] * (2 ** 7);
 			pc++;
 			break;
 		case "rjmp":
 			pc += opr1 + 1;
 			break;
 		case "rcall":
-			stack[sp] = pc;
-			sp++;
+			memory[0x3ff - sp] = pc + 1;
+			sp -= 2;
 			pc += opr1 + 1;
 			break;
 		case "ret":
-			pc = stack[sp];
-			stack[sp] = 0;	//*空にする。
-			sp--;
+			pc = memory[0x3ff - sp];
+			memory[0x3ff - sp] = 0;	//*空にする。
+			memory[0x3ff - sp + 1] = 0;	//*空にする。
+			sp += 2;
 			break;
 		case "brbs":
 			if (flag[opr1] === 1) {
@@ -185,10 +191,13 @@ function procedure(opc: string | object, opr1: number, opr2: number, r: number[]
 			}
 			break;
 		case "nop":
+			pc++;
 			break;
 		default:
 			break;
 	}
+	//step フラグレジスタの計算
+
 	return [sp, pc];
 }
 
@@ -196,6 +205,7 @@ function procedure(opc: string | object, opr1: number, opr2: number, r: number[]
 
 // this method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
+
 
 	//　start listening
 	// point ボタンが押されたときに、output.txtを作成する。
@@ -222,22 +232,20 @@ export function activate(context: vscode.ExtensionContext) {
 		let operand: RegExpMatchArray | null;
 		let oprNum = new Array(2);
 		//step レジスタやフラグなどの変数宣言
-		let r = new Array(32);
-		let flag = new Array(8);
+		let memory = new Array(1024);
+		memory.fill(0);	//*初期値0
+		memory[0x5f] = new Array(8);	//フラグレジスタ
+		memory[0x5f].fill(0);
 		let stack = new Array();
-		let sp = 0;
 		let pc = 0;
-		r.fill(0);	//*初期値0
-		flag.fill(0);	//*初期値0
-
 		reader.on('line', line => {
 			//step 正規表現で命令などを切り出し。
 			opcode = line.match(/^\w*/);
-			operand = line.match(/(r\d+|0x[0-9a-fA-F]{2}|(-?\d+))/gm);
+			operand = line.match(/(memory\d+|0x[0-9a-fA-F]{2}|(-?\d+))/gm);
 			//step 10進数変換
 			oprNum = oprDecimal(operand);
 			//step 命令機能実装
-			[sp, pc] = procedure(opcode[0], oprNum[0], oprNum[1], r, flag, pc, stack, sp);
+			[memory[0x5d], pc] = procedure(opcode[0], oprNum[0], oprNum[1], memory, memory[0x5f], pc, memory[0x5d]);
 			//step csvファイルに書き込み
 		});
 	});
