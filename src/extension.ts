@@ -274,7 +274,7 @@ export function activate(context: vscode.ExtensionContext) {
 		let stack = new Array();
 		let pc = 0;
 		let flagNames = ["C", "Z", "N", "V", "S", "H", "T", "I"];
-		let text = "";
+		let text = "レジスタ名,値\n";
 		memory.fill(0);	//*初期値0
 		flags = new Array(8);	//フラグレジスタ
 		flags.fill(0);
