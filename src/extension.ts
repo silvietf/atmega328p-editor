@@ -9,12 +9,12 @@ function pickUpBit(data: number, n: number) {
 	return data / (2 ** (n - 1)) % 2;
 }
 
-//function オペランドの数字変換。
-function oprDecimal(opr: RegExpMatchArray | null) {
+//function オペランドの数字変換。（node.jsのみに使用可能）
+function regsterAndHexToDecimalNode(opr: RegExpMatchArray | null) {
 	//step 末尾の数字２桁を抽出して、16進数変換。
-	let newOpr = new Array(2);
+	let newOpr = new Array(2);	//オペランドが2つまで→2個用意
 	opr.forEach((e, i, a) => {
-		if (e.match(/memory/gm) !== null) {
+		if (e.match(/r/gm) !== null) {
 			//point レジスタ名にmatch
 			newOpr[i] = parseInt(String(e.match(/[0-9]+/gm)), 10);
 		} else if (e.match(/0x/gm) !== null) {
@@ -25,6 +25,25 @@ function oprDecimal(opr: RegExpMatchArray | null) {
 			newOpr[i] = parseInt(String(e.match(/-?[0-9]+/gm)), 10);
 		}
 	});
+	return newOpr;
+}
+
+//function オペランドの数字変換
+function regsterAndHexToDecimalString(opr: string[] | null) {
+	//step 末尾の数字２桁を抽出して、16進数変換。
+	let newOpr = new Array();
+	for (let i = 0; i < opr.length; i++) {
+		if (opr[i].match(/r/gm) !== null) {
+			//point レジスタ名にmatch
+			newOpr[i] = parseInt(String(opr[i].match(/[0-9]+/gm)), 10);
+		} else if (opr[i].match(/0x/gm) !== null) {
+			//point 16進数にmatch
+			newOpr[i] = parseInt(String(opr[i].match(/[0-9a-fA-F]+(?!x)/gm)), 16);
+		} else {
+			//point 10進数にmatch
+			newOpr[i] = parseInt(String(opr[i].match(/-?[0-9]+/gm)), 10);
+		}
+	}
 	return newOpr;
 }
 
@@ -217,12 +236,9 @@ function procedure(opc: string | object, opr1: number, opr2: number, memory: num
 		default:
 			break;
 	}
-	//step フラグレジスタの計算
 
 	return [sp, pc];
 }
-
-
 
 // this method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -244,31 +260,46 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	// point デバッグボタンが押されたときに、デバッグ機能を実装。
-	let d = vscode.commands.registerCommand("launch-debugger", e => {
-		//step
+	let d = vscode.commands.registerTextEditorCommand("launch-debugger", (t, edit, e) => {
+		//step レジスタやフラグなどの変数宣言
 		const savePath = ps.join(e._fsPath, '../', "registers.csv");
 		const streamR = fs.createReadStream(e._fsPath);
 		const reader = rl.createInterface({ input: streamR });
 		let opcode: RegExpMatchArray | null;
 		let operand: RegExpMatchArray | null;
 		let oprNum = new Array(2);
-		//step レジスタやフラグなどの変数宣言
+		let i, registers;
 		let memory = new Array(1024);
-		memory.fill(0);	//*初期値0
-		memory[0x5f] = new Array(8);	//フラグレジスタ
-		memory[0x5f].fill(0);
+		let flags = memory[0x5f];
 		let stack = new Array();
 		let pc = 0;
+		let flagNames = ["C", "Z", "N", "V", "S", "H", "T", "I"];
+		let text = "";
+		memory.fill(0);	//*初期値0
+		flags = new Array(8);	//フラグレジスタ
+		flags.fill(0);
 		reader.on('line', line => {
 			//step 正規表現で命令などを切り出し。
 			opcode = line.match(/^\w*/);
-			operand = line.match(/(memory\d+|0x[0-9a-fA-F]{2}|(-?\d+))/gm);
+			operand = line.match(/(r\d+|0x[0-9a-fA-F]{2}|(-?\d+))/gm);
 			//step 10進数変換
-			oprNum = oprDecimal(operand);
+			oprNum = regsterAndHexToDecimalNode(operand);
 			//step 命令機能実装
-			[memory[0x5d], pc] = procedure(opcode[0], oprNum[0], oprNum[1], memory, memory[0x5f], pc, memory[0x5d]);
-			//step csvファイルに書き込み
+			[memory[0x5d], pc] = procedure(opcode[0], oprNum[0], oprNum[1], memory, flags, pc, memory[0x5d]);
 		});
+		//step csvファイルに書き込み
+		fs.writeFile(savePath, "", (err) => { });
+		registers = t.document.getText().match(/r\d+/gm);
+		if (registers !== null) {
+			let registerNumber = regsterAndHexToDecimalString(registers);
+			for (i = 0; i < registers.length; i++) {
+				text += registers[i] + "," + String(memory[registerNumber[i]]) + "\n";
+			}
+		}
+		for (i = 0; i < 5; i++) {
+			text += flagNames[i] + "," + String(flags[i]) + "\n";
+		}
+		fs.appendFile(savePath, text, (err) => { });
 	});
 	// this method is called when your extension is deactivated
 	context.subscriptions.push(b);
