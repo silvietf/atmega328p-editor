@@ -35,3 +35,6 @@
 ### Ver.0.2.0
 * デバッグ機能プロトタイプ搭載
 * push,pop,cp,cpc,lsl,lsr,aser,rol,.ror,rjmp,rcall,ret,brbrs,brbcには非対応。
+### Ver 0.2.1
+* ld機能の修正
+* output.txt機能の改善。
