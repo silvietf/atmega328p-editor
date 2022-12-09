@@ -2,7 +2,7 @@
 	"name": "atmega328p-editor",
 	"displayName": "ATmega328p Assembly Language Editor for Arduino Uno",
 	"description": "アセンブリコードを書きやすくする為の拡張機能です。",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"engines": {
 		"vscode": "^1.71.0"
 	},
@@ -18,6 +18,11 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"configurationDefaults": {
+			"[ino assembly]": {
+				"editor.semanticHighlighting.enabled": true
+			}
+		},
 		"breakpoints": [
 			{
 				"language": "ino assembly"
