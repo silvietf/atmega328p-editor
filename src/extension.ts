@@ -243,19 +243,20 @@ function procedure(opc: string | object, opr1: number, opr2: number, memory: num
 // this method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
 
-
-	//　start listening
 	// point ボタンが押されたときに、output.txtを作成する。
 	let b = vscode.commands.registerCommand('convert-to-txt', c => {
 		const savePath = ps.join(c._fsPath, '../', "output.txt");
 		const streamR = fs.createReadStream(c._fsPath);
 		const streamW = fs.createWriteStream(savePath);
 		const reader = rl.createInterface({ input: streamR });
-		let newLine = '';
+		let newLine;
 		reader.on('line', line => {
 			//行ごとに行う処理
-			newLine = `"` + line + '\t\\n' + '"\n';
-			streamW.write(newLine);
+			newLine = line.match(/^(\t|\s)*\w+\:?(\t\w+(\,\t\w+)?)?/gm);
+			if (newLine !== null) {
+				newLine = `"` + newLine + '\t\\n' + '"\n';
+				streamW.write(newLine);
+			}
 		});
 	});
 
