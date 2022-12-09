@@ -23,7 +23,7 @@
     "LD": {
         "prefix": "ld",
         "body": [
-            "ld\t${1:Rd}\t${0:Ri}"
+            "ld\t${1:Rd},\t${0:Ri}"
         ],
         "description": "Rd←(Ri)"
     },
@@ -164,7 +164,7 @@
         "prefix": "brbc",
         "body": "brbc\t${1:s},\t${0:k}"
     },
-    "NOP":{
+    "NOP": {
         "prefix": "nop",
         "body": "nop"
     }
