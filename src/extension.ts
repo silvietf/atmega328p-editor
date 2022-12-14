@@ -236,9 +236,12 @@ function procedure(opc: string | object, opr1: number, opr2: number, memory: num
 		default:
 			break;
 	}
-
 	return [sp, pc];
 }
+
+/* コールバック関数 */
+//function
+
 
 // this method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -252,7 +255,7 @@ export function activate(context: vscode.ExtensionContext) {
 		let newLine;
 		reader.on('line', line => {
 			//行ごとに行う処理
-			newLine = line.match(/^(\t|\s)*\w+\:?(\t\w+(\,\t\w+)?)?/gm);
+			newLine = line.match(/^(\t|\s)*\w+\:?(\t\(?\w+\)?(\,\t\(?\w+\)?)?)?/gm);
 			if (newLine !== null) {
 				newLine = `"` + newLine + '\t\\n' + '"\n';
 				streamW.write(newLine);
@@ -279,7 +282,9 @@ export function activate(context: vscode.ExtensionContext) {
 		memory.fill(0);	//*初期値0
 		flags = new Array(8);	//フラグレジスタ
 		flags.fill(0);
-		reader.on('line', line => {
+
+		//function デバッグのメインとなる機能をコールバック関数で保持。
+		const debugMain = (line) => {
 			//step 正規表現で命令などを切り出し。
 			opcode = line.match(/^\w*/);
 			operand = line.match(/(r\d+|0x[0-9a-fA-F]{2}|(-?\d+))/gm);
@@ -287,21 +292,28 @@ export function activate(context: vscode.ExtensionContext) {
 			oprNum = regsterAndHexToDecimalNode(operand);
 			//step 命令機能実装
 			[memory[0x5d], pc] = procedure(opcode[0], oprNum[0], oprNum[1], memory, flags, pc, memory[0x5d]);
-		});
-		//step csvファイルに書き込み
-		fs.writeFile(savePath, "", (err) => { });
-		registers = t.document.getText().match(/r\d+/gm);
-		if (registers !== null) {
-			let registerNumber = regsterAndHexToDecimalString(registers);
-			for (i = 0; i < registers.length; i++) {
-				text += registers[i] + "," + String(memory[registerNumber[i]]) + "\n";
+		};
+		reader.on('line', debugMain);
+
+		//function  csvファイルの書き込み
+		const csvWrite = async () => {
+			await fs.writeFile(savePath, "", (err) => { });
+			registers = t.document.getText().match(/r\d+/gm);
+			if (registers !== null) {
+				let registerNumber = regsterAndHexToDecimalString(registers);
+				for (i = 0; i < registers.length; i++) {
+					text += registers[i] + "," + String(memory[registerNumber[i]]) + "\n";
+				}
 			}
-		}
-		for (i = 0; i < 5; i++) {
-			text += flagNames[i] + "," + String(flags[i]) + "\n";
-		}
-		fs.appendFile(savePath, text, (err) => { });
+			for (i = 0; i < 5; i++) {
+				text += flagNames[i] + "," + String(flags[i]) + "\n";
+			}
+			await fs.appendFile(savePath, text, (err) => { });
+		};
+		csvWrite();
 	});
+
+
 	// this method is called when your extension is deactivated
 	context.subscriptions.push(b);
 	context.subscriptions.push(d);

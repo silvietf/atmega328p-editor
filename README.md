@@ -38,3 +38,5 @@
 ### Ver 0.2.1
 * ld機能の修正
 * output.txt機能の改善。
+### Ver 0.2.2
+* output.txt機能のバグの改善。
